@@ -21,10 +21,12 @@ GESTION DE MAIRIE/
 │               ├── auth/                  # inscription, OTP, connexion
 │               ├── declaration-naissance/ # cœur métier + machine à états
 │               └── ged/                   # documents polymorphes
+│   └── web/                 # portail citoyen React (Vite) — inscription, OTP,
+│                            #   tableau de bord, déclaration multi-étapes
 ├── packages/
 │   └── shared/              # schémas Zod partagés API ⇆ formulaires React
 ├── docs/cahier-des-charges/
-└── render.yaml              # déploiement Render (Blueprint)
+└── render.yaml              # déploiement Render (API + site statique)
 ```
 
 Principes structurants (cf. `CLAUDE.md`) :
@@ -45,6 +47,20 @@ cp .env.example .env          # renseigner DATABASE_URL et JWT_SECRET
 npm run prisma:migrate        # crée les tables (migration de dev)
 npm run dev                   # API sur http://localhost:3000
 ```
+
+## Portail citoyen (frontend)
+
+```bash
+npm install
+cd apps/web && cp .env.example .env    # VITE_API_URL pointe sur l'API
+npm run dev                            # portail sur http://localhost:5173
+```
+
+Le portail couvre : inscription + vérification OTP, connexion, tableau de bord,
+formulaire multi-étapes de déclaration de naissance (enfant, père, mère,
+déclarant, récapitulatif + déclaration sur l'honneur), et suivi des demandes.
+Les formulaires valident avec les schémas de `@e-mairie/shared` (mêmes règles que
+l'API).
 
 ## Endpoints principaux
 
@@ -80,5 +96,7 @@ après 15 min) — passer en plan payant + stockage objet pour la production.
 ## État d'avancement
 
 - ✅ Backend : auth (OTP/JWT), cycle de vie complet de la déclaration, GED, audit.
-- ⬜ Portail React citoyen (consommera `@e-mairie/shared`) — prochaine étape.
-- ⬜ OCR, notifications SMS, génération PDF de l'acte, QR Code de vérification.
+- ✅ Portail citoyen React : inscription/OTP, tableau de bord, déclaration
+  multi-étapes, suivi des demandes.
+- ⬜ Téléversement des pièces avec OCR dans le formulaire, écran agent (mairie).
+- ⬜ Notifications SMS, génération PDF de l'acte, QR Code de vérification.

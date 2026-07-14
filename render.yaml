@@ -35,3 +35,20 @@ services:
         value: console
       - key: ORIGINE_FRONTEND
         sync: false
+
+  # ── Portail citoyen (React, site statique) ────────────────────────────────
+  - type: web
+    name: emairie-web
+    runtime: static
+    # Le build web résout @e-mairie/shared via sa source, un simple install suffit.
+    buildCommand: npm install && npm run build --workspace @e-mairie/web
+    staticPublishPath: apps/web/dist
+    # SPA : toutes les routes retombent sur index.html (react-router côté client).
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # URL publique du service API — à renseigner après le 1er déploiement.
+      - key: VITE_API_URL
+        sync: false
