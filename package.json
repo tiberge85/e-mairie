@@ -1,0 +1,21 @@
+{
+  "name": "e-mairie",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Plateforme e-Mairie — gestion municipale + portail citoyen",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @e-mairie/shared && npm run build --workspace @e-mairie/api",
+    "start": "npm run start --workspace @e-mairie/api",
+    "dev": "npm run dev --workspace @e-mairie/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "prisma:generate": "npm run prisma:generate --workspace @e-mairie/api",
+    "prisma:migrate": "npm run prisma:migrate --workspace @e-mairie/api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

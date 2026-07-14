@@ -1,0 +1,37 @@
+# Blueprint Render — décrit l'infrastructure du projet e-Mairie.
+# Créez le Blueprint depuis le dashboard Render en pointant sur ce dépôt.
+#
+# ⚠️ Offre gratuite : la base Postgres gratuite EXPIRE au bout de 30 jours et le
+# service web se met en veille après 15 min d'inactivité. Convient à une démo,
+# pas à la production (passer en plan payant + stockage objet pour les pièces).
+
+databases:
+  - name: emairie-db
+    plan: free
+    databaseName: emairie
+    user: emairie
+
+services:
+  - type: web
+    name: emairie-api
+    runtime: node
+    plan: free
+    # Monorepo : on installe et compile depuis la RACINE (pour lier
+    # @e-mairie/shared), puis on applique les migrations du workspace API et on
+    # démarre l'API. Ne pas définir de rootDir, sinon npm n'installe que l'API.
+    buildCommand: npm install && npm run build && npm run prisma:deploy --workspace @e-mairie/api
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: emairie-db
+          property: connectionString
+      - key: NODE_VERSION
+        value: "20"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: OTP_MODE
+        value: console
+      - key: ORIGINE_FRONTEND
+        sync: false

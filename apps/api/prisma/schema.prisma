@@ -1,0 +1,185 @@
+// Schéma Prisma — e-Mairie.
+//
+// Conventions du projet (cf. CLAUDE.md) :
+//  · Les documents sont POLYMORPHES : rattachés par le couple `entite`/`entiteId`,
+//    jamais par une colonne `dossierId` dédiée.
+//  · Français partout.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Énumérations ─────────────────────────────────────────────────────────────
+
+enum Role {
+  CITOYEN
+  AGENT
+  OFFICIER
+}
+
+enum Sexe {
+  M
+  F
+}
+
+enum TypeDeclarant {
+  Pere
+  Mere
+  Tuteur
+  SageFemme
+  AgentDeSante
+  Autre
+}
+
+/// Cycle de vie d'une déclaration. Les transitions autorisées sont contrôlées
+/// dans le code (declaration.statuts.ts), pas par la base.
+enum StatutDeclaration {
+  Brouillon
+  Soumis
+  EnVerification
+  PiecesDemandees
+  Valide
+  Refuse
+  ActeGenere
+  Disponible
+  Retire
+}
+
+// ── Compte citoyen ───────────────────────────────────────────────────────────
+
+model Citoyen {
+  id            String   @id @default(uuid())
+  nom           String
+  prenoms       String
+  dateNaissance DateTime
+  /// Identifiant pivot : tout le monde a un numéro, pas forcément un email.
+  telephone     String   @unique
+  email         String?  @unique
+  motDePasseHash String
+  role          Role     @default(CITOYEN)
+  /// Passe à true une fois l'OTP validé à l'inscription.
+  telephoneVerifie Boolean @default(false)
+  creeLe        DateTime @default(now())
+  misAJourLe    DateTime @updatedAt
+
+  codesOtp      OtpCode[]
+  declarations  DeclarationNaissance[] @relation("DeclarationsDuCitoyen")
+  transitions   TransitionStatut[]
+
+  @@map("citoyens")
+}
+
+/// Code OTP à usage unique. On ne stocke que le HASH du code, comme un mot de
+/// passe : une fuite de la base ne doit pas livrer les codes en clair.
+model OtpCode {
+  id        String   @id @default(uuid())
+  citoyen   Citoyen  @relation(fields: [citoyenId], references: [id], onDelete: Cascade)
+  citoyenId String
+  codeHash  String
+  expireLe  DateTime
+  consomme  Boolean  @default(false)
+  creeLe    DateTime @default(now())
+
+  @@index([citoyenId])
+  @@map("codes_otp")
+}
+
+// ── Déclaration de naissance ─────────────────────────────────────────────────
+
+model DeclarationNaissance {
+  id                 String            @id @default(uuid())
+  /// Remis au citoyen dès l'envoi (statut Soumis).
+  numeroSuivi        String            @unique
+  /// Attribué seulement à la génération de l'acte — ne se confond pas avec le
+  /// numéro de suivi.
+  numeroActeOfficiel String?           @unique
+  statut             StatutDeclaration @default(Brouillon)
+
+  /// Le déclarant / titulaire du compte qui a saisi la demande.
+  citoyen   Citoyen @relation("DeclarationsDuCitoyen", fields: [citoyenId], references: [id])
+  citoyenId String
+
+  /// Données saisies, conservées en JSON (cf. esquisse du cahier des charges).
+  /// Arbitrage colonnes vs JSON assumé : souplesse d'évolution du formulaire.
+  enfant        Json
+  pere          Json
+  mere          Json
+  typeDeclarant TypeDeclarant
+
+  /// Obligatoire quand le statut passe à Refuse (contrôlé dans le service).
+  motifRefus String?
+
+  soumisLe DateTime?
+  valideLe DateTime?
+  genereLe DateTime?
+
+  creeLe     DateTime @default(now())
+  misAJourLe DateTime @updatedAt
+
+  transitions TransitionStatut[]
+
+  @@index([citoyenId])
+  @@index([statut])
+  @@map("declarations_naissance")
+}
+
+/// Journal d'audit des changements de statut : qui, quand, d'où vers où, et
+/// pourquoi. Une ligne par transition, jamais modifiée après coup.
+model TransitionStatut {
+  id            String                @id @default(uuid())
+  declaration   DeclarationNaissance  @relation(fields: [declarationId], references: [id], onDelete: Cascade)
+  declarationId String
+  ancienStatut  StatutDeclaration?
+  nouveauStatut StatutDeclaration
+  /// L'auteur de la transition (agent, officier ou citoyen). Null = automatique.
+  auteur        Citoyen?              @relation(fields: [auteurId], references: [id])
+  auteurId      String?
+  motif         String?
+  creeLe        DateTime              @default(now())
+
+  @@index([declarationId])
+  @@map("transitions_statut")
+}
+
+// ── GED : documents polymorphes ──────────────────────────────────────────────
+
+/// Une pièce se rattache à N'IMPORTE QUELLE entité métier via `entite`/`entiteId`
+/// (ex. entite = 'DeclarationNaissance'). Aucune colonne `dossierId` : classer
+/// dans un dossier GED = entite = 'Dossier'.
+model Document {
+  id            String  @id @default(uuid())
+  nom           String
+  cheminStockage String
+  mimeType      String
+  tailleOctets  Int
+
+  /// Rattachement polymorphe.
+  entite   String
+  entiteId String
+  /// Raccourci pratique quand la pièce concerne un citoyen (CNI d'un parent…).
+  citoyenId String?
+
+  /// Texte OCR conservé À CÔTÉ de l'image source ; l'OCR ne fait pas foi.
+  texteOcr String?
+
+  /// Versionnement : un document qui en remplace un autre incrémente `version`
+  /// et pointe vers son prédécesseur, qui sort des listes courantes.
+  version    Int       @default(1)
+  precedent  Document? @relation("VersionsDocument", fields: [precedentId], references: [id])
+  precedentId String?
+  versionsSuivantes Document[] @relation("VersionsDocument")
+
+  /// Renseigné quand la pièce est versée aux archives.
+  archiveLe DateTime?
+
+  creeLe DateTime @default(now())
+
+  @@index([entite, entiteId])
+  @@index([citoyenId])
+  @@map("documents")
+}

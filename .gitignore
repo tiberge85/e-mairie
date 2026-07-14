@@ -10,12 +10,17 @@ out/
 .next/
 coverage/
 
+# Prisma : le client généré ne se commite pas (regénéré au build)
+packages/**/generated/
+apps/**/src/generated/
+
 # Environnement & secrets
 .env
 .env.*
 !.env.example
 
-# Prisma (base locale)
+# Pièces téléversées (stockage local de dev)
+data/
 *.db
 *.sqlite
 
@@ -23,7 +28,6 @@ coverage/
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 
 # OS / éditeurs
@@ -36,3 +40,4 @@ Thumbs.db
 # Divers
 .cache/
 tmp/
+_trash/
