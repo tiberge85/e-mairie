@@ -6,7 +6,14 @@ import { declarationNaissanceSchema, SEXES, TYPES_DECLARANT } from '@e-mairie/sh
 import { Champ } from '../components/Champ';
 import { api } from '../lib/api';
 import { appliquerErreursServeur } from '../lib/erreurs';
+import { lireOcr, extraireNumeroPiece } from '../lib/ocr';
 import { useAuth } from '../auth/AuthContext';
+
+type Prefixe = 'pere' | 'mere';
+interface PieceParent {
+  fichier: File;
+  texteOcr: string;
+}
 
 const LABEL_SEXE: Record<string, string> = { M: 'Masculin', F: 'Féminin' };
 const LABEL_DECLARANT: Record<string, string> = {
@@ -22,12 +29,16 @@ export function NouvelleDeclaration() {
   const [etape, setEtape] = useState(0);
   const [honneur, setHonneur] = useState(false);
   const [erreurGlobale, setErreurGlobale] = useState('');
+  // Pièces d'identité téléversées, par parent, avec leur texte OCR.
+  const [pieces, setPieces] = useState<Partial<Record<Prefixe, PieceParent>>>({});
+  const [ocrEnCours, setOcrEnCours] = useState<Prefixe | null>(null);
 
   const {
     register,
     handleSubmit,
     trigger,
     getValues,
+    setValue,
     setError,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -50,11 +61,42 @@ export function NouvelleDeclaration() {
     if (valide) setEtape((e) => Math.min(e + 1, ETAPES.length - 1));
   }
 
+  /** Lit la pièce (OCR), pré-remplit le numéro de pièce, et la garde pour l'envoi. */
+  async function onFichier(prefixe: Prefixe, fichier: File | undefined) {
+    if (!fichier) return;
+    setOcrEnCours(prefixe);
+    try {
+      const texteOcr = await lireOcr(fichier);
+      const numero = extraireNumeroPiece(texteOcr);
+      // On ne pré-remplit que si le champ est vide, pour ne pas écraser une saisie.
+      if (numero && !getValues(`${prefixe}.numeroPiece`)) {
+        setValue(`${prefixe}.numeroPiece`, numero);
+      }
+      setPieces((p) => ({ ...p, [prefixe]: { fichier, texteOcr } }));
+    } catch {
+      // Échec OCR : on garde quand même la pièce (l'image source compte).
+      setPieces((p) => ({ ...p, [prefixe]: { fichier, texteOcr: '' } }));
+    } finally {
+      setOcrEnCours(null);
+    }
+  }
+
   const envoyer = handleSubmit(async (valeurs) => {
     if (!token) return;
     setErreurGlobale('');
     try {
       const creee = await api.creerDeclaration(valeurs, token);
+      // Téléversement des pièces d'identité rattachées à la déclaration.
+      for (const prefixe of ['pere', 'mere'] as const) {
+        const piece = pieces[prefixe];
+        if (!piece) continue;
+        const fd = new FormData();
+        fd.append('fichier', piece.fichier);
+        fd.append('entite', 'DeclarationNaissance');
+        fd.append('entiteId', creee.id);
+        if (piece.texteOcr) fd.append('texteOcr', piece.texteOcr);
+        await api.televerser(fd, token);
+      }
       const soumise = await api.soumettreDeclaration(creee.id, token);
       naviguer(`/declarations/${soumise.id}`);
     } catch (e) {
@@ -98,10 +140,27 @@ export function NouvelleDeclaration() {
         <Champ label="Numéro de la pièce d'identité" erreur={err?.numeroPiece?.message}>
           <input {...register(`${prefixe}.numeroPiece`)} />
         </Champ>
-        <p className="muet">
-          📷 Le téléversement de la pièce avec lecture OCR sera proposé ici
-          (prochaine itération) ; les champs restent corrigeables.
-        </p>
+
+        <Champ label="Pièce d'identité (photo ou image)">
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            disabled={ocrEnCours !== null}
+            onChange={(e) => onFichier(prefixe, e.target.files?.[0])}
+          />
+        </Champ>
+        {ocrEnCours === prefixe && (
+          <p className="muet">🔍 Lecture de la pièce en cours… (cela peut prendre quelques secondes)</p>
+        )}
+        {pieces[prefixe] && ocrEnCours !== prefixe && (
+          <div className="alerte alerte--info">
+            ✓ Pièce ajoutée : {pieces[prefixe]!.fichier.name}.
+            {pieces[prefixe]!.texteOcr
+              ? ' Le numéro a pu être pré-rempli — vérifiez et corrigez si besoin.'
+              : ' (Lecture automatique indisponible, saisissez les champs à la main.)'}
+          </div>
+        )}
       </>
     );
   }
