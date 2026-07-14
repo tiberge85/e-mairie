@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
 /**
@@ -8,6 +8,8 @@ import { useAuth } from '../auth/AuthContext';
  */
 export function TableauDeBord() {
   const { citoyen } = useAuth();
+  // Un agent qui atterrit sur l'accueil citoyen est renvoyé vers son espace.
+  if (citoyen && citoyen.role !== 'CITOYEN') return <Navigate to="/agent" replace />;
   return (
     <>
       <h1>Bonjour {citoyen?.prenoms ?? ''}</h1>

@@ -29,7 +29,7 @@ export function Connexion() {
     try {
       const { jeton, citoyen } = await api.connexion(valeurs);
       connexion(jeton, citoyen);
-      naviguer('/');
+      naviguer(citoyen.role === 'CITOYEN' ? '/' : '/agent');
     } catch (e) {
       // 403 = compte non vérifié : l'API a renvoyé un nouvel OTP.
       if (e instanceof ErreurApi && e.statut === 403) {

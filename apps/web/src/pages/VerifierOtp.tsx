@@ -29,7 +29,7 @@ export function VerifierOtp() {
     try {
       const { jeton, citoyen } = await api.verifierOtp(valeurs);
       connexion(jeton, citoyen);
-      naviguer('/');
+      naviguer(citoyen.role === 'CITOYEN' ? '/' : '/agent');
     } catch (e) {
       setErreurGlobale(appliquerErreursServeur(e, setError));
     }

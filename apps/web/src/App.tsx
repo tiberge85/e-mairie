@@ -1,6 +1,9 @@
 import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth/AuthContext';
 import { RouteProtegee } from './components/ProtectedRoute';
+import { RouteAgent } from './components/RouteAgent';
+import { AgentTableauDeBord } from './pages/agent/AgentTableauDeBord';
+import { AgentDetailDeclaration } from './pages/agent/AgentDetailDeclaration';
 import { Inscription } from './pages/Inscription';
 import { VerifierOtp } from './pages/VerifierOtp';
 import { Connexion } from './pages/Connexion';
@@ -47,6 +50,11 @@ export function App() {
           <Route
             path="/declarations/:id"
             element={<RouteProtegee><DetailDeclaration /></RouteProtegee>}
+          />
+          <Route path="/agent" element={<RouteAgent><AgentTableauDeBord /></RouteAgent>} />
+          <Route
+            path="/agent/declarations/:id"
+            element={<RouteAgent><AgentDetailDeclaration /></RouteAgent>}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -89,6 +89,45 @@ export interface ListeDeclarations {
   parPage: number;
 }
 
+export interface Parent {
+  nom?: string;
+  prenoms?: string;
+  dateNaissance?: string;
+  nationalite?: string;
+  profession?: string;
+  adresse?: string;
+  telephone?: string;
+  numeroPiece?: string;
+}
+export interface Transition {
+  id: string;
+  ancienStatut: string | null;
+  nouveauStatut: string;
+  motif: string | null;
+  creeLe: string;
+}
+/** Vue complète d'un dossier côté agent (enfant/père/mère + audit). */
+export interface DeclarationDetail extends Declaration {
+  pere: Parent;
+  mere: Parent;
+  typeDeclarant: string;
+  motifRefus: string | null;
+  valideLe: string | null;
+  genereLe: string | null;
+  transitions?: Transition[];
+}
+export interface Piece {
+  id: string;
+  nom: string;
+  mimeType: string;
+  tailleOctets: number;
+  creeLe: string;
+}
+export interface ListeDocuments {
+  items: Piece[];
+  total: number;
+}
+
 export const api = {
   inscription: (dto: unknown) => requete<{ citoyenId: string; message: string }>(
     'POST', '/api/auth/inscription', { body: dto }),
@@ -105,4 +144,25 @@ export const api = {
     requete<Declaration>('GET', `/api/declarations/mes/${id}`, { token }),
   televerser: (form: FormData, token: string) =>
     requete<{ id: string; nom: string }>('POST', '/api/documents', { form, token }),
+
+  // ── Côté mairie (agent) ────────────────────────────────────────────────────
+  listerAgent: (token: string, statut?: string) =>
+    requete<ListeDeclarations>(
+      'GET',
+      `/api/declarations${statut ? `?statut=${encodeURIComponent(statut)}` : ''}`,
+      { token },
+    ),
+  obtenirAgent: (id: string, token: string) =>
+    requete<DeclarationDetail>('GET', `/api/declarations/${id}`, { token }),
+  changerStatut: (id: string, statut: string, motif: string | undefined, token: string) =>
+    requete<DeclarationDetail>('PATCH', `/api/declarations/${id}/statut`, {
+      body: { statut, motif },
+      token,
+    }),
+  listerDocuments: (entite: string, entiteId: string, token: string) =>
+    requete<ListeDocuments>(
+      'GET',
+      `/api/documents?entite=${encodeURIComponent(entite)}&entiteId=${entiteId}`,
+      { token },
+    ),
 };
