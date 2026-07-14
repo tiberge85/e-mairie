@@ -5,7 +5,15 @@
  * (statut + message + détails par champ) sont remontées via `ErreurApi` pour être
  * affichées proprement dans les formulaires.
  */
-const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+// Adresse de l'API.
+//  · Si `VITE_API_URL` est définie (et non vide), on l'utilise.
+//  · Sinon : localhost en développement, et l'API de production par défaut.
+// On retire une éventuelle barre « / » finale pour éviter les doubles slashs.
+// Ce défaut robuste évite de dépendre d'un réglage Render parfait.
+const BRUT =
+  import.meta.env.VITE_API_URL?.trim() ||
+  (import.meta.env.DEV ? 'http://localhost:3000' : 'https://emairie-api.onrender.com');
+const BASE = BRUT.replace(/\/+$/, '');
 
 export interface ErreurChamp {
   champ: string;
