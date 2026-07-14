@@ -2,26 +2,53 @@ import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
 /**
- * Tableau de bord citoyen. Les tuiles « à venir » sont affichées mais inactives :
- * elles correspondent aux fonctions post-v1 du cahier des charges (paiements,
- * rendez-vous…).
+ * Tableau de bord citoyen — mise en page « Lumière Citoyenne » : carte héro
+ * bleu marine pour l'action principale, puis tuiles. Les tuiles « à venir »
+ * correspondent aux fonctions post-v1 du cahier des charges.
  */
 export function TableauDeBord() {
   const { citoyen } = useAuth();
-  // Un agent qui atterrit sur l'accueil citoyen est renvoyé vers son espace.
   if (citoyen && citoyen.role !== 'CITOYEN') return <Navigate to="/agent" replace />;
+
   return (
     <>
-      <h1>Bonjour {citoyen?.prenoms ?? ''}</h1>
-      <p className="sous-titre">Que souhaitez-vous faire aujourd'hui ?</p>
+      <h1>Bonjour, {citoyen?.prenoms ?? ''}</h1>
+      <p className="sous-titre">
+        Bienvenue sur votre portail citoyen. Suivez vos démarches en temps réel et
+        accédez à vos documents officiels en un clic.
+      </p>
+
+      <div className="carte--hero">
+        <span className="badge badge--or">Action recommandée</span>
+        <h2 style={{ marginTop: 14 }}>Nouvelle demande</h2>
+        <p>
+          Déclarez une naissance et préparez votre dossier d'état civil via notre
+          formulaire intelligent, pièces à l'appui.
+        </p>
+        <Link to="/nouvelle-declaration" className="lien-or">Démarrer une procédure →</Link>
+      </div>
 
       <div className="tuiles">
-        <Link className="tuile" to="/nouvelle-declaration">➕ Nouvelle demande</Link>
-        <Link className="tuile" to="/mes-declarations">📁 Mes demandes</Link>
-        <span className="tuile" style={{ opacity: 0.5 }}>📄 Documents<br /><span className="muet">bientôt</span></span>
-        <span className="tuile" style={{ opacity: 0.5 }}>🔔 Notifications<br /><span className="muet">bientôt</span></span>
-        <span className="tuile" style={{ opacity: 0.5 }}>💳 Paiements<br /><span className="muet">bientôt</span></span>
-        <span className="tuile" style={{ opacity: 0.5 }}>📅 Rendez-vous<br /><span className="muet">bientôt</span></span>
+        <Link className="tuile" to="/mes-declarations">
+          <span className="tuile__icone">📁</span>
+          <span className="tuile__titre">Mes demandes</span>
+          <span className="muet">Suivez l'avancement de vos dossiers.</span>
+        </Link>
+        <span className="tuile tuile--indispo">
+          <span className="tuile__icone">📄</span>
+          <span className="tuile__titre">Documents</span>
+          <span className="muet">Bientôt disponible.</span>
+        </span>
+        <span className="tuile tuile--indispo">
+          <span className="tuile__icone">🔔</span>
+          <span className="tuile__titre">Notifications</span>
+          <span className="muet">Bientôt disponible.</span>
+        </span>
+        <span className="tuile tuile--indispo">
+          <span className="tuile__icone">👤</span>
+          <span className="tuile__titre">Profil</span>
+          <span className="muet">Bientôt disponible.</span>
+        </span>
       </div>
     </>
   );

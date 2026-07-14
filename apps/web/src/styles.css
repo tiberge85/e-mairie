@@ -1,79 +1,206 @@
+/* ============================================================================
+   Système de design « Lumière Citoyenne »
+   Bleu marine institutionnel + or · titres serif Libre Caslon Text · Inter
+   ========================================================================== */
+
 :root {
-  --primaire: #1d4ed8;
-  --primaire-fonce: #1e40af;
-  --texte: #1f2937;
-  --texte-doux: #6b7280;
-  --bordure: #e5e7eb;
-  --fond: #f7f8fa;
-  --carte: #ffffff;
-  --succes: #047857;
-  --erreur: #dc2626;
-  --rayon: 12px;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Couleurs */
+  --navy: #00113a;            /* primary */
+  --navy-2: #002366;          /* primary-container / hover */
+  --gold: #9a7b1f;            /* accent doré (texte/liens) */
+  --gold-bright: #d4af37;
+  --gold-pill: #fedd97;       /* fond pastille dorée */
+  --gold-pill-ink: #5d4201;
+  --emerald: #1f9d57;
+  --bg: #f7f9fb;              /* surface / background */
+  --surface: #ffffff;
+  --surface-2: #f2f4f6;
+  --surface-3: #eceef0;
+  --ink: #191c1e;            /* on-surface */
+  --ink-soft: #444650;       /* on-surface-variant */
+  --line: #d8dbe0;
+  --line-soft: #e6e8ea;
+  --error: #ba1a1a;
+  --error-bg: #ffdad6;
+
+  /* Formes & profondeur */
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 20px;
+  --pill: 999px;
+  --ombre: 0 6px 24px rgba(0, 17, 58, 0.08);
+  --ombre-forte: 0 12px 32px rgba(0, 17, 58, 0.14);
+
+  --serif: 'Libre Caslon Text', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  font-family: var(--sans);
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  color: var(--texte);
-  background: var(--fond);
-  line-height: 1.5;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: var(--sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-a { color: var(--primaire); }
+h1, h2, h3 {
+  font-family: var(--serif);
+  color: var(--navy);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+}
+h1 { font-size: 2rem; line-height: 1.15; }
+h2 { font-size: 1.4rem; line-height: 1.25; }
+h3 { font-size: 1.15rem; }
 
-/* ── Mise en page (mobile-first) ─────────────────────────────────────────── */
+@media (min-width: 640px) {
+  h1 { font-size: 2.5rem; }
+}
+
+a { color: var(--gold); text-decoration: none; font-weight: 600; }
+a:hover { text-decoration: underline; }
+
+.sous-titre { color: var(--ink-soft); font-size: 1.06rem; margin: 0 0 24px; }
+.muet { color: var(--ink-soft); font-size: 0.9rem; }
+
+/* ── En-tête / navigation ─────────────────────────────────────────────────── */
 .app-entete {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
-  background: var(--carte);
-  border-bottom: 1px solid var(--bordure);
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line-soft);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 20;
 }
-.app-entete__marque { font-weight: 700; color: var(--primaire); }
+.app-entete__marque {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--navy);
+}
+.app-entete__marque:hover { text-decoration: none; }
 
+.logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--pill);
+  background: var(--navy);
+  color: #fff;
+  flex: none;
+}
+.logo svg { width: 22px; height: 22px; }
+
+/* ── Conteneur ────────────────────────────────────────────────────────────── */
 .conteneur {
   width: 100%;
-  max-width: 640px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 20px 16px 60px;
+  padding: 28px 20px 72px;
 }
 
+/* ── Cartes ───────────────────────────────────────────────────────────────── */
 .carte {
-  background: var(--carte);
-  border: 1px solid var(--bordure);
-  border-radius: var(--rayon);
-  padding: 20px;
-  margin-bottom: 16px;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--ombre);
 }
 
-h1 { font-size: 1.5rem; margin: 0 0 4px; }
-h2 { font-size: 1.15rem; margin: 0 0 12px; }
-.sous-titre { color: var(--texte-doux); margin: 0 0 20px; }
+/* Carte « héro » bleu marine avec accents dorés */
+.carte--hero {
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--r-lg);
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--ombre-forte);
+}
+.carte--hero h2 { color: #fff; }
+.carte--hero p { color: rgba(255, 255, 255, 0.82); }
+.carte--hero .lien-or {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gold-bright);
+  font-weight: 700;
+  font-size: 1.02rem;
+}
+
+/* ── Marque (hero d'authentification) ─────────────────────────────────────── */
+.marque-hero { text-align: center; margin: 12px 0 28px; }
+.marque-hero .logo {
+  width: 76px;
+  height: 76px;
+  background: var(--surface);
+  color: var(--navy);
+  box-shadow: var(--ombre);
+  margin: 0 auto 20px;
+}
+.marque-hero .logo svg { width: 38px; height: 38px; }
+.marque-hero__nom {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--navy);
+  line-height: 1.1;
+}
+.marque-hero__divider {
+  width: 64px;
+  height: 3px;
+  border-radius: var(--pill);
+  background: var(--gold-bright);
+  margin: 16px auto 24px;
+}
+.marque-hero__titre { font-size: 2rem; margin-bottom: 12px; }
 
 /* ── Champs ───────────────────────────────────────────────────────────────── */
-.champ { display: block; margin-bottom: 14px; }
-.champ__label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
-.champ__requis { color: var(--erreur); }
-.champ__erreur { display: block; color: var(--erreur); font-size: 0.82rem; margin-top: 4px; }
+.champ { display: block; margin-bottom: 18px; }
+.champ__label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+.champ__requis { color: var(--error); }
+.champ__erreur { display: block; color: var(--error); font-size: 0.82rem; margin-top: 6px; }
 
 input, select {
   width: 100%;
-  padding: 11px 12px;
-  border: 1px solid var(--bordure);
-  border-radius: 8px;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
   font-size: 1rem;
+  font-family: var(--sans);
   background: #fff;
+  color: var(--ink);
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-input:focus, select:focus { outline: 2px solid var(--primaire); border-color: var(--primaire); }
-
-.grille-2 { display: grid; grid-template-columns: 1fr; gap: 0 14px; }
-@media (min-width: 520px) { .grille-2 { grid-template-columns: 1fr 1fr; } }
+input::placeholder { color: #9aa0a6; }
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25);
+}
 
 /* ── Boutons ──────────────────────────────────────────────────────────────── */
 .btn {
@@ -81,63 +208,95 @@ input:focus, select:focus { outline: 2px solid var(--primaire); border-color: va
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 18px;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  padding: 14px 22px;
+  border: 1.5px solid transparent;
+  border-radius: var(--r-sm);
   font-size: 1rem;
   font-weight: 600;
+  font-family: var(--sans);
   cursor: pointer;
-  background: var(--primaire);
+  background: var(--navy);
   color: #fff;
+  transition: transform 0.12s, background 0.15s, box-shadow 0.15s;
 }
-.btn:hover { background: var(--primaire-fonce); }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.btn--secondaire { background: #fff; color: var(--texte); border-color: var(--bordure); }
-.btn--secondaire:hover { background: #f3f4f6; }
+.btn:hover { background: var(--navy-2); transform: translateY(-1px); box-shadow: var(--ombre); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn--secondaire {
+  background: #fff;
+  color: var(--navy);
+  border-color: var(--navy);
+}
+.btn--secondaire:hover { background: var(--surface-2); color: var(--navy); }
 .btn--bloc { width: 100%; }
-.barre-boutons { display: flex; gap: 10px; justify-content: space-between; margin-top: 8px; }
+.barre-boutons { display: flex; gap: 12px; justify-content: space-between; margin-top: 8px; }
 
-/* ── Divers ───────────────────────────────────────────────────────────────── */
-.alerte { padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 0.92rem; }
-.alerte--erreur { background: #fef2f2; color: var(--erreur); border: 1px solid #fecaca; }
-.alerte--succes { background: #ecfdf5; color: var(--succes); border: 1px solid #a7f3d0; }
-.alerte--info { background: #eff6ff; color: var(--primaire-fonce); border: 1px solid #bfdbfe; }
+/* ── Alertes ──────────────────────────────────────────────────────────────── */
+.alerte { padding: 14px 16px; border-radius: var(--r-sm); margin-bottom: 18px; font-size: 0.94rem; }
+.alerte--erreur { background: var(--error-bg); color: #93000a; }
+.alerte--succes { background: #e2f6ea; color: #0b6b39; border-left: 4px solid var(--emerald); }
+.alerte--info { background: #eaf0ff; color: var(--navy-2); }
 
-.etapes { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
-.etape { flex: 1; min-width: 60px; height: 6px; border-radius: 3px; background: var(--bordure); }
-.etape--active { background: var(--primaire); }
+/* ── Étapes (progression) ─────────────────────────────────────────────────── */
+.etapes { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+.etape { flex: 1; min-width: 40px; height: 6px; border-radius: var(--pill); background: var(--line-soft); }
+.etape--active { background: var(--gold-bright); }
 
-.tuiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+/* ── Tuiles ───────────────────────────────────────────────────────────────── */
+.tuiles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .tuile {
-  display: block;
-  padding: 18px;
-  border: 1px solid var(--bordure);
-  border-radius: var(--rayon);
-  background: var(--carte);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--ombre);
   text-decoration: none;
-  color: var(--texte);
+  color: var(--ink);
   font-weight: 600;
+  transition: transform 0.12s, box-shadow 0.15s;
 }
-.tuile:hover { border-color: var(--primaire); }
+.tuile:hover { transform: translateY(-2px); box-shadow: var(--ombre-forte); text-decoration: none; }
+.tuile__icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-sm);
+  background: var(--surface-3);
+  font-size: 1.3rem;
+}
+.tuile__titre { font-family: var(--serif); font-weight: 700; color: var(--navy); font-size: 1.15rem; }
+.tuile--indispo { opacity: 0.55; }
 
+/* ── Listes de dossiers ───────────────────────────────────────────────────── */
 .liste-dossier { list-style: none; padding: 0; margin: 0; }
 .liste-dossier li {
-  padding: 14px 0;
-  border-bottom: 1px solid var(--bordure);
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line-soft);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
+.liste-dossier li:last-child { border-bottom: none; }
+.liste-dossier a { color: var(--ink); font-weight: 600; }
+
+/* ── Pastilles de statut ──────────────────────────────────────────────────── */
 .badge {
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: var(--primaire-fonce);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: var(--pill);
+  background: rgba(0, 35, 102, 0.08);
+  color: var(--navy-2);
   white-space: nowrap;
+  letter-spacing: 0.01em;
 }
-.muet { color: var(--texte-doux); font-size: 0.9rem; }
-.recap dt { font-weight: 600; margin-top: 10px; }
-.recap dd { margin: 0; color: var(--texte-doux); }
+.badge--or { background: var(--gold-pill); color: var(--gold-pill-ink); }
+.badge--vert { background: #d7f2e1; color: #0b6b39; }
+
+/* ── Récapitulatif ────────────────────────────────────────────────────────── */
+.recap dt { font-weight: 700; margin-top: 12px; color: var(--ink); font-size: 0.9rem; }
+.recap dd { margin: 2px 0 0; color: var(--ink-soft); }

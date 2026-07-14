@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { inscriptionCitoyenSchema } from '@e-mairie/shared';
 import { Champ } from '../components/Champ';
+import { MarqueHero } from '../components/MarqueHero';
 import { api } from '../lib/api';
 import { appliquerErreursServeur } from '../lib/erreurs';
 
@@ -34,9 +35,9 @@ export function Inscription() {
   });
 
   return (
-    <div className="carte">
-      <h1>Créer un compte</h1>
-      <p className="sous-titre">Préparez vos démarches en quelques minutes.</p>
+    <>
+      <MarqueHero titre="Créer un compte" soustitre="Préparez vos démarches en quelques minutes." />
+      <div className="carte">
       {erreurGlobale && <div className="alerte alerte--erreur">{erreurGlobale}</div>}
 
       <form onSubmit={soumettre} noValidate>
@@ -74,6 +75,7 @@ export function Inscription() {
       <p className="muet" style={{ marginTop: 16 }}>
         Déjà inscrit ? <Link to="/connexion">Se connecter</Link>
       </p>
-    </div>
+      </div>
+    </>
   );
 }

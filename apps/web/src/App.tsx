@@ -2,6 +2,7 @@ import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth/AuthContext';
 import { RouteProtegee } from './components/ProtectedRoute';
 import { RouteAgent } from './components/RouteAgent';
+import { Logo } from './components/Logo';
 import { AgentTableauDeBord } from './pages/agent/AgentTableauDeBord';
 import { AgentDetailDeclaration } from './pages/agent/AgentDetailDeclaration';
 import { Inscription } from './pages/Inscription';
@@ -19,7 +20,7 @@ export function App() {
   return (
     <>
       <header className="app-entete">
-        <Link to="/" className="app-entete__marque">e-Mairie</Link>
+        <Link to="/" className="app-entete__marque"><Logo />e-Mairie</Link>
         {token && (
           <button
             className="btn btn--secondaire"

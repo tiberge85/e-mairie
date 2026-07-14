@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { connexionCitoyenSchema } from '@e-mairie/shared';
 import { Champ } from '../components/Champ';
+import { MarqueHero } from '../components/MarqueHero';
 import { api, ErreurApi } from '../lib/api';
 import { appliquerErreursServeur } from '../lib/erreurs';
 import { useAuth } from '../auth/AuthContext';
@@ -41,9 +42,9 @@ export function Connexion() {
   });
 
   return (
-    <div className="carte">
-      <h1>Connexion</h1>
-      <p className="sous-titre">Accédez à vos demandes et à leur suivi.</p>
+    <>
+      <MarqueHero titre="Connexion" soustitre="Accédez à vos demandes et à leur suivi." />
+      <div className="carte">
       {erreurGlobale && <div className="alerte alerte--erreur">{erreurGlobale}</div>}
 
       <form onSubmit={soumettre} noValidate>
@@ -61,6 +62,7 @@ export function Connexion() {
       <p className="muet" style={{ marginTop: 16 }}>
         Pas encore de compte ? <Link to="/inscription">Créer un compte</Link>
       </p>
-    </div>
+      </div>
+    </>
   );
 }

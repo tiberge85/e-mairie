@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { verificationOtpSchema } from '@e-mairie/shared';
 import { Champ } from '../components/Champ';
+import { MarqueHero } from '../components/MarqueHero';
 import { api } from '../lib/api';
 import { appliquerErreursServeur } from '../lib/erreurs';
 import { useAuth } from '../auth/AuthContext';
@@ -36,12 +37,12 @@ export function VerifierOtp() {
   });
 
   return (
-    <div className="carte">
-      <h1>Vérification</h1>
-      <p className="sous-titre">
-        Saisissez le code à 6 chiffres reçu par SMS. (En démo, le code s'affiche
-        dans les logs du serveur.)
-      </p>
+    <>
+      <MarqueHero
+        titre="Vérification"
+        soustitre="Saisissez le code à 6 chiffres reçu par SMS. (En démo, le code s'affiche dans les logs du serveur.)"
+      />
+      <div className="carte">
       {erreurGlobale && <div className="alerte alerte--erreur">{erreurGlobale}</div>}
 
       <form onSubmit={soumettre} noValidate>
@@ -55,6 +56,7 @@ export function VerifierOtp() {
           {isSubmitting ? 'Vérification…' : 'Valider'}
         </button>
       </form>
-    </div>
+      </div>
+    </>
   );
 }
