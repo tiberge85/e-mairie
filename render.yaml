@@ -19,7 +19,9 @@ services:
     # Monorepo : on installe et compile depuis la RACINE (pour lier
     # @e-mairie/shared), puis on applique les migrations du workspace API et on
     # démarre l'API. Ne pas définir de rootDir, sinon npm n'installe que l'API.
-    buildCommand: npm install && npm run build && npm run prisma:deploy --workspace @e-mairie/api
+    # --include=dev : Render met NODE_ENV=production au build, ce qui SANS cette
+    # option n'installerait pas typescript/prisma (devDependencies) → build KO.
+    buildCommand: npm install --include=dev && npm run build && npm run prisma:deploy --workspace @e-mairie/api
     startCommand: npm run start
     healthCheckPath: /health
     envVars:
@@ -40,8 +42,8 @@ services:
   - type: web
     name: emairie-web
     runtime: static
-    # Le build web résout @e-mairie/shared via sa source, un simple install suffit.
-    buildCommand: npm install && npm run build --workspace @e-mairie/web
+    # --include=dev : idem, vite et @vitejs/plugin-react sont des devDependencies.
+    buildCommand: npm install --include=dev && npm run build --workspace @e-mairie/web
     staticPublishPath: apps/web/dist
     # SPA : toutes les routes retombent sur index.html (react-router côté client).
     routes:
