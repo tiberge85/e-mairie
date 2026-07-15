@@ -34,18 +34,26 @@ export function AgentLayout() {
         <NavLink to="/agent/secretariat" className={lienClasse}>
           <span className="bo__ico">📝</span> Secrétariat
         </NavLink>
-        <span className="bo__lien bo__lien--off"><span className="bo__ico">🛠️</span> Services techniques</span>
+        <NavLink to="/agent/bientot/services-techniques" className={lienClasse}>
+          <span className="bo__ico">🛠️</span> Services techniques
+        </NavLink>
         <NavLink to="/agent/maire" className={lienClasse}>
           <span className="bo__ico">🏛️</span> Cabinet du Maire
         </NavLink>
-        <span className="bo__lien bo__lien--off"><span className="bo__ico">🛡️</span> Administration</span>
+        <NavLink to="/agent/bientot/administration" className={lienClasse}>
+          <span className="bo__ico">🛡️</span> Administration
+        </NavLink>
         <NavLink to="/agent/performance" className={lienClasse}>
           <span className="bo__ico">📈</span> Statistiques
         </NavLink>
 
         <span className="bo__sep" />
-        <span className="bo__lien bo__lien--off"><span className="bo__ico">💬</span> Support</span>
-        <span className="bo__lien bo__lien--off"><span className="bo__ico">⚙️</span> Paramètres</span>
+        <NavLink to="/agent/bientot/support" className={lienClasse}>
+          <span className="bo__ico">💬</span> Support
+        </NavLink>
+        <NavLink to="/agent/bientot/parametres" className={lienClasse}>
+          <span className="bo__ico">⚙️</span> Paramètres
+        </NavLink>
         <button
           className="bo__lien bo__decon"
           onClick={() => { deconnexion(); naviguer('/connexion'); }}

@@ -6,6 +6,7 @@ import { BanniereIllustrative } from '../../components/BanniereIllustrative';
 export function DashboardMaire() {
   const { token } = useAuth();
   const [stats, setStats] = useState<StatsAgent | null>(null);
+  const [info, setInfo] = useState('');
   useEffect(() => {
     if (!token) return;
     api.statsAgent(token).then(setStats).catch(() => {});
@@ -21,6 +22,7 @@ export function DashboardMaire() {
       <p className="sous-titre">Pilotage de la commune — vue consolidée.</p>
 
       <BanniereIllustrative />
+      {info && <div className="alerte alerte--info">{info}</div>}
 
       <div className="stats4">
         <div className="stat">
@@ -91,8 +93,8 @@ export function DashboardMaire() {
             <div key={t} style={{ borderBottom: '1px solid var(--line-soft)', padding: '12px 0' }}>
               <div style={{ fontWeight: 700, color: 'var(--navy)' }}>{t}</div>
               <div className="barre-boutons" style={{ marginTop: 8, justifyContent: 'flex-start' }}>
-                <button className="btn" disabled>Approuver</button>
-                <button className="btn btn--secondaire" disabled>Consulter</button>
+                <button className="btn" onClick={() => setInfo(`« ${t} » : le parapheur numérique (validation des décisions) fait partie d'un module en préparation.`)}>Approuver</button>
+                <button className="btn btn--secondaire" onClick={() => setInfo(`« ${t} » : la consultation détaillée arrivera avec le module dédié.`)}>Consulter</button>
               </div>
             </div>
           ))}

@@ -5,6 +5,7 @@ import { RouteAgent } from './components/RouteAgent';
 import { Logo } from './components/Logo';
 import { CadreEtroit } from './components/CadreEtroit';
 import { AgentLayout } from './components/AgentLayout';
+import { EnConstruction } from './components/EnConstruction';
 import { Inscription } from './pages/Inscription';
 import { VerifierOtp } from './pages/VerifierOtp';
 import { Connexion } from './pages/Connexion';
@@ -59,6 +60,7 @@ export function App() {
             path="/declarations/:id"
             element={<RouteProtegee><DetailDeclaration /></RouteProtegee>}
           />
+          <Route path="/bientot/:module" element={<RouteProtegee><EnConstruction /></RouteProtegee>} />
         </Route>
 
         {/* Back-office agent — menu latéral */}
@@ -69,6 +71,7 @@ export function App() {
           <Route path="maire" element={<DashboardMaire />} />
           <Route path="performance" element={<DashboardChef />} />
           <Route path="secretariat" element={<DashboardSecretariat />} />
+          <Route path="bientot/:module" element={<EnConstruction />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

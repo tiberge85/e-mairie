@@ -34,21 +34,21 @@ export function TableauDeBord() {
           <span className="tuile__titre">Mes demandes</span>
           <span className="muet">Suivez l'avancement de vos dossiers.</span>
         </Link>
-        <span className="tuile tuile--indispo">
+        <Link className="tuile" to="/bientot/documents">
           <span className="tuile__icone">📄</span>
           <span className="tuile__titre">Documents</span>
           <span className="muet">Bientôt disponible.</span>
-        </span>
-        <span className="tuile tuile--indispo">
+        </Link>
+        <Link className="tuile" to="/bientot/notifications">
           <span className="tuile__icone">🔔</span>
           <span className="tuile__titre">Notifications</span>
           <span className="muet">Bientôt disponible.</span>
-        </span>
-        <span className="tuile tuile--indispo">
+        </Link>
+        <Link className="tuile" to="/bientot/profil">
           <span className="tuile__icone">👤</span>
           <span className="tuile__titre">Profil</span>
           <span className="muet">Bientôt disponible.</span>
-        </span>
+        </Link>
       </div>
     </>
   );
