@@ -31,11 +31,17 @@ export function AgentLayout() {
         <NavLink to="/agent/dossiers" className={lienClasse}>
           <span className="bo__ico">📁</span> Dossiers
         </NavLink>
-        <span className="bo__lien bo__lien--off"><span className="bo__ico">📝</span> Secrétariat</span>
+        <NavLink to="/agent/secretariat" className={lienClasse}>
+          <span className="bo__ico">📝</span> Secrétariat
+        </NavLink>
         <span className="bo__lien bo__lien--off"><span className="bo__ico">🛠️</span> Services techniques</span>
-        <span className="bo__lien bo__lien--off"><span className="bo__ico">🏛️</span> Cabinet du Maire</span>
+        <NavLink to="/agent/maire" className={lienClasse}>
+          <span className="bo__ico">🏛️</span> Cabinet du Maire
+        </NavLink>
         <span className="bo__lien bo__lien--off"><span className="bo__ico">🛡️</span> Administration</span>
-        <span className="bo__lien bo__lien--off"><span className="bo__ico">📈</span> Statistiques</span>
+        <NavLink to="/agent/performance" className={lienClasse}>
+          <span className="bo__ico">📈</span> Statistiques
+        </NavLink>
 
         <span className="bo__sep" />
         <span className="bo__lien bo__lien--off"><span className="bo__ico">💬</span> Support</span>

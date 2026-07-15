@@ -424,6 +424,82 @@ input:focus, select:focus {
 .fil__txt { flex: 1; }
 .fil__meta { color: var(--ink-soft); font-size: 0.82rem; }
 
+/* ── Dashboards exécutifs ─────────────────────────────────────────────────── */
+.banniere-illustr {
+  background: var(--gold-pill); color: var(--gold-pill-ink);
+  border-radius: var(--r-sm); padding: 10px 14px; font-size: 0.85rem;
+  font-weight: 600; margin-bottom: 18px;
+}
+.surtitre { color: var(--gold); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.72rem; }
+
+.stats4 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
+@media (min-width: 900px) { .stats4 { grid-template-columns: repeat(4, 1fr); } }
+.stat {
+  background: var(--surface); border-radius: var(--r); padding: 18px;
+  box-shadow: var(--ombre); border-left: 4px solid var(--navy);
+}
+.stat--or { border-left-color: var(--gold); }
+.stat--vert { border-left-color: var(--emerald); }
+.stat--bleu { border-left-color: #3457a6; }
+.stat__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.stat__ico { width: 38px; height: 38px; border-radius: var(--r-sm); background: var(--surface-3); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; }
+.stat__trend { font-size: 0.8rem; font-weight: 700; }
+.trend-up { color: var(--emerald); }
+.trend-down { color: var(--error); }
+.trend-warn { color: var(--gold); }
+.stat__lib { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); font-weight: 700; }
+.stat__val { font-family: var(--serif); font-weight: 700; font-size: 1.85rem; color: var(--navy); margin-top: 4px; line-height: 1; }
+.stat__sous { font-size: 0.8rem; color: var(--ink-soft); margin-top: 4px; }
+
+.exec-2 { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 1000px) { .exec-2 { grid-template-columns: 2fr 1fr; } }
+
+/* Barres de charge */
+.barre { margin-bottom: 16px; }
+.barre__tete { display: flex; justify-content: space-between; font-size: 0.92rem; font-weight: 600; margin-bottom: 6px; }
+.barre__track { height: 9px; background: var(--surface-3); border-radius: var(--pill); overflow: hidden; }
+.barre__fill { height: 9px; background: var(--navy); border-radius: var(--pill); }
+.barre__fill--or { background: var(--gold); }
+
+/* Agenda / calendrier */
+.agenda__item { display: flex; gap: 14px; align-items: center; padding: 12px; border: 1px solid var(--line-soft); border-radius: var(--r-sm); margin-bottom: 10px; }
+.agenda__date { text-align: center; min-width: 40px; }
+.agenda__jour { font-family: var(--serif); font-size: 1.4rem; font-weight: 700; color: var(--navy); line-height: 1; }
+.agenda__lib { font-size: 0.65rem; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
+.agenda__txt { font-weight: 600; }
+
+/* Mini-graphe à barres */
+.cbars { display: flex; align-items: flex-end; gap: 12px; height: 180px; padding-top: 10px; }
+.cbar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; justify-content: flex-end; }
+.cbar__b { width: 100%; max-width: 46px; background: var(--navy); border-radius: 8px 8px 0 0; }
+.cbar__b--or { background: var(--gold); }
+.cbar__lib { font-size: 0.7rem; color: var(--ink-soft); text-align: center; }
+
+/* Alertes critiques (dans une carte marine) */
+.acrit { background: rgba(255, 255, 255, 0.09); border-radius: var(--r-sm); padding: 14px; margin-bottom: 10px; }
+.acrit h3 { color: #fff; font-size: 1rem; margin: 0 0 4px; font-family: var(--sans); }
+.acrit p { color: rgba(255, 255, 255, 0.75); font-size: 0.85rem; margin: 0; }
+.acrit__tag { float: right; font-size: 0.62rem; font-weight: 700; padding: 3px 9px; border-radius: var(--pill); }
+.acrit__tag--urg { background: var(--error); color: #fff; }
+.acrit__tag--suivi { background: var(--gold-pill); color: var(--gold-pill-ink); }
+
+/* Carte / plan */
+.carte-plan {
+  height: 220px; border-radius: var(--r);
+  background: linear-gradient(135deg, #e6e8ea, #cdd2d8);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-soft); font-weight: 600; text-align: center; padding: 16px;
+}
+
+/* Bulles de discussion (support citoyen) */
+.bulle { background: var(--surface-2); border-radius: 14px; padding: 10px 14px; margin-bottom: 10px; max-width: 82%; font-size: 0.9rem; }
+.bulle--moi { background: var(--navy); color: #fff; margin-left: auto; }
+
+/* Bloc info (date/heure/météo) */
+.infobloc { display: inline-flex; gap: 22px; background: var(--surface); border-radius: var(--r); padding: 12px 18px; box-shadow: var(--ombre); }
+.infobloc__val { font-family: var(--serif); font-weight: 700; color: var(--navy); font-size: 1.2rem; }
+.infobloc__lib { font-size: 0.72rem; color: var(--ink-soft); }
+
 /* ── Récapitulatif ────────────────────────────────────────────────────────── */
 .recap dt { font-weight: 700; margin-top: 12px; color: var(--ink); font-size: 0.9rem; }
 .recap dd { margin: 2px 0 0; color: var(--ink-soft); }

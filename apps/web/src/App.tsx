@@ -15,6 +15,9 @@ import { DetailDeclaration } from './pages/DetailDeclaration';
 import { AgentTableauDeBord } from './pages/agent/AgentTableauDeBord';
 import { AgentDossiers } from './pages/agent/AgentDossiers';
 import { AgentDetailDeclaration } from './pages/agent/AgentDetailDeclaration';
+import { DashboardMaire } from './pages/agent/DashboardMaire';
+import { DashboardChef } from './pages/agent/DashboardChef';
+import { DashboardSecretariat } from './pages/agent/DashboardSecretariat';
 
 export function App() {
   const { token, citoyen, deconnexion } = useAuth();
@@ -63,6 +66,9 @@ export function App() {
           <Route index element={<AgentTableauDeBord />} />
           <Route path="dossiers" element={<AgentDossiers />} />
           <Route path="declarations/:id" element={<AgentDetailDeclaration />} />
+          <Route path="maire" element={<DashboardMaire />} />
+          <Route path="performance" element={<DashboardChef />} />
+          <Route path="secretariat" element={<DashboardSecretariat />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
