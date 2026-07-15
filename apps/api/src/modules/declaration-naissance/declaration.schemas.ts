@@ -15,6 +15,8 @@ export const filtreDeclarationsSchema = paginationSchema.extend({
   statut: z.nativeEnum(StatutDeclaration).optional(),
   citoyenId: z.string().uuid().optional(),
   numeroSuivi: z.string().trim().max(40).optional(),
+  /** Recherche libre : numéro de dossier OU nom/prénoms de l'enfant. */
+  recherche: z.string().trim().max(100).optional(),
 });
 export type FiltreDeclarationsDto = z.infer<typeof filtreDeclarationsSchema>;
 

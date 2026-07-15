@@ -26,7 +26,7 @@ export function AgentDossiers() {
     setItems(null);
     setErreur('');
     api
-      .listerAgent(token, statut)
+      .listerAgent(token, { statut })
       .then((r) => setItems(r.items))
       .catch(() => setErreur('Chargement impossible.'));
   }, [token, statut]);

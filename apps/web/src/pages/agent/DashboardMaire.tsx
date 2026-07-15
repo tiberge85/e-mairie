@@ -3,15 +3,6 @@ import { api, type StatsAgent } from '../../lib/api';
 import { useAuth } from '../../auth/AuthContext';
 import { BanniereIllustrative } from '../../components/BanniereIllustrative';
 
-/** Barres illustratives d'activité par service (le module multi-services n'existe pas encore). */
-const SERVICES = [
-  { nom: 'État civil', pct: 88, or: false },
-  { nom: 'Urbanisme', pct: 62, or: false },
-  { nom: 'Technique', pct: 74, or: false },
-  { nom: 'Social', pct: 45, or: false },
-  { nom: 'Éducation', pct: 94, or: true },
-];
-
 export function DashboardMaire() {
   const { token } = useAuth();
   const [stats, setStats] = useState<StatsAgent | null>(null);
@@ -21,6 +12,7 @@ export function DashboardMaire() {
   }, [token]);
 
   const demandesEnCours = stats ? stats.enAttente + stats.enCours : null;
+  const maxJour = Math.max(1, ...(stats?.parJour ?? []).map((x) => x.count));
 
   return (
     <>
@@ -32,9 +24,9 @@ export function DashboardMaire() {
 
       <div className="stats4">
         <div className="stat">
-          <div className="stat__top"><span className="stat__ico">👥</span><span className="stat__trend trend-up">+2,4 %</span></div>
-          <div className="stat__lib">Population (exemple)</div>
-          <div className="stat__val">42 850</div>
+          <div className="stat__top"><span className="stat__ico">👥</span><span className="stat__trend trend-warn">réel</span></div>
+          <div className="stat__lib">Citoyens inscrits</div>
+          <div className="stat__val">{stats ? stats.totalCitoyens.toLocaleString('fr-FR') : '—'}</div>
         </div>
         <div className="stat stat--or">
           <div className="stat__top"><span className="stat__ico">📨</span><span className="stat__trend trend-warn">réel</span></div>
@@ -55,15 +47,16 @@ export function DashboardMaire() {
 
       <div className="exec-2">
         <div className="carte">
-          <h2>Activité des services municipaux</h2>
-          <p className="muet" style={{ marginTop: -4 }}>Volume de dossiers traités par département (exemple).</p>
+          <h2>Activité — 7 derniers jours</h2>
+          <p className="muet" style={{ marginTop: -4, marginBottom: 8 }}>Déclarations reçues par jour (réel).</p>
           <div className="cbars">
-            {SERVICES.map((s) => (
-              <div className="cbar" key={s.nom}>
-                <div className={`cbar__b ${s.or ? 'cbar__b--or' : ''}`} style={{ height: `${s.pct}%` }} />
-                <div className="cbar__lib">{s.nom}</div>
+            {(stats?.parJour ?? []).map((j, i) => (
+              <div className="cbar" key={i}>
+                <div className="cbar__b" style={{ height: `${Math.max(4, (j.count / maxJour) * 100)}%` }} />
+                <div className="cbar__lib">{j.label}<br />{j.count}</div>
               </div>
             ))}
+            {(!stats || stats.parJour.length === 0) && <p className="muet">Chargement…</p>}
           </div>
         </div>
 

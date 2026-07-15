@@ -1,5 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { api, type Declaration, type StatsAgent } from '../../lib/api';
 import { useAuth } from '../../auth/AuthContext';
 
@@ -14,47 +14,64 @@ const PILLS = [
   { label: 'Compléments', statut: 'PiecesDemandees', cle: 'piecesDemandees' as const },
 ];
 
-/**
- * Console de gestion agent — reproduction de la maquette : indicateurs, tâches
- * prioritaires, recherche avancée, et table des dossiers en attente.
- */
+/** Action rapide proposée selon le statut (le back-end contrôle la transition). */
+function actionRapide(statut: string): { label: string; cible: string } | null {
+  switch (statut) {
+    case 'Soumis': return { label: 'Prendre en charge', cible: 'EnVerification' };
+    case 'EnVerification': return { label: 'Valider', cible: 'Valide' };
+    case 'Valide': return { label: "Générer l'acte", cible: 'ActeGenere' };
+    case 'ActeGenere': return { label: 'Rendre disponible', cible: 'Disponible' };
+    default: return null;
+  }
+}
+
 export function AgentTableauDeBord() {
   const { token } = useAuth();
-  const naviguer = useNavigate();
   const [stats, setStats] = useState<StatsAgent | null>(null);
   const [priorites, setPriorites] = useState<Declaration[]>([]);
   const [statutTable, setStatutTable] = useState('Soumis');
+  const [saisie, setSaisie] = useState('');
+  const [recherche, setRecherche] = useState('');
   const [rows, setRows] = useState<Declaration[] | null>(null);
-  const [identifiant, setIdentifiant] = useState('');
-  const [rechercheMsg, setRechercheMsg] = useState('');
+  const [actionEnCours, setActionEnCours] = useState<string | null>(null);
 
-  useEffect(() => {
+  const chargerStats = useCallback(() => {
     if (!token) return;
     api.statsAgent(token).then(setStats).catch(() => {});
-    Promise.all([api.listerAgent(token, 'PiecesDemandees'), api.listerAgent(token, 'Soumis')])
+    Promise.all([
+      api.listerAgent(token, { statut: 'PiecesDemandees' }),
+      api.listerAgent(token, { statut: 'Soumis' }),
+    ])
       .then(([pc, so]) => setPriorites([...pc.items, ...so.items].slice(0, 4)))
       .catch(() => {});
   }, [token]);
 
-  useEffect(() => {
+  const chargerTable = useCallback(() => {
     if (!token) return;
     setRows(null);
-    api.listerAgent(token, statutTable).then((r) => setRows(r.items)).catch(() => setRows([]));
-  }, [token, statutTable]);
+    const opts = recherche ? { recherche } : { statut: statutTable };
+    api.listerAgent(token, opts).then((r) => setRows(r.items)).catch(() => setRows([]));
+  }, [token, statutTable, recherche]);
 
-  async function rechercher(e: FormEvent) {
+  useEffect(() => { chargerStats(); }, [chargerStats]);
+  useEffect(() => { chargerTable(); }, [chargerTable]);
+
+  function rechercher(e: FormEvent) {
     e.preventDefault();
-    setRechercheMsg('');
-    if (!token || !identifiant.trim()) {
-      setRechercheMsg('Saisissez un numéro de dossier.');
-      return;
-    }
+    setRecherche(saisie.trim());
+  }
+  function effacer() { setSaisie(''); setRecherche(''); }
+  function choisirPill(statut: string) { setRecherche(''); setSaisie(''); setStatutTable(statut); }
+
+  async function agirRapide(id: string, cible: string) {
+    if (!token) return;
+    setActionEnCours(id);
     try {
-      const r = await api.listerAgent(token, identifiant.trim());
-      if (r.items.length > 0) naviguer(`/agent/declarations/${r.items[0].id}`);
-      else setRechercheMsg('Aucun dossier ne correspond à ce numéro.');
-    } catch {
-      setRechercheMsg('Recherche impossible.');
+      await api.changerStatut(id, cible, undefined, token);
+      chargerStats();
+      chargerTable();
+    } finally {
+      setActionEnCours(null);
     }
   }
 
@@ -75,7 +92,6 @@ export function AgentTableauDeBord() {
       )}
 
       <div className="console-haut">
-        {/* Tâches prioritaires */}
         <div className="carte">
           <h2>Tâches prioritaires</h2>
           <p className="muet" style={{ marginTop: -4, marginBottom: 16 }}>
@@ -91,9 +107,7 @@ export function AgentTableauDeBord() {
                     <span>{d.statut === 'PiecesDemandees' ? '📎' : '🛡️'}</span>
                     {d.statut === 'PiecesDemandees' ? 'Compléments reçus' : 'À vérifier'}
                   </div>
-                  <div className="muet">
-                    Dossier {d.numeroSuivi} — {d.enfant?.prenoms} {d.enfant?.nom}
-                  </div>
+                  <div className="muet">Dossier {d.numeroSuivi} — {d.enfant?.prenoms} {d.enfant?.nom}</div>
                   <div className="prio__meta">
                     <span>{new Date(d.creeLe).toLocaleDateString('fr-FR')}</span>
                     <Link to={`/agent/declarations/${d.id}`}>Traiter →</Link>
@@ -104,70 +118,81 @@ export function AgentTableauDeBord() {
           )}
         </div>
 
-        {/* Recherche avancée */}
         <div className="carte">
           <h2>Recherche</h2>
           <p className="muet" style={{ marginTop: -4, marginBottom: 16 }}>
-            Localisez un dossier par son numéro de suivi.
+            Par numéro de dossier ou nom de l'enfant.
           </p>
           <form onSubmit={rechercher}>
             <label className="champ">
-              <span className="champ__label">Numéro de dossier</span>
-              <input
-                value={identifiant}
-                onChange={(e) => setIdentifiant(e.target.value)}
-                placeholder="Ex : ND-2026-000123"
-              />
+              <span className="champ__label">Numéro ou nom</span>
+              <input value={saisie} onChange={(e) => setSaisie(e.target.value)} placeholder="Ex : ND-2026-… ou Diallo" />
             </label>
-            {rechercheMsg && <div className="alerte alerte--info">{rechercheMsg}</div>}
-            <button type="submit" className="btn btn--bloc">🔍 Lancer la recherche</button>
+            <button type="submit" className="btn btn--bloc">🔍 Rechercher</button>
           </form>
         </div>
       </div>
 
-      {/* Dossiers en attente */}
       <div className="carte">
         <div className="entete-section">
-          <h2>Dossiers en attente</h2>
-          <div className="pills">
-            {PILLS.map((p) => (
-              <button
-                key={p.statut}
-                className={`pill ${statutTable === p.statut ? 'pill--actif' : ''}`}
-                onClick={() => setStatutTable(p.statut)}
-              >
-                {p.label}{stats ? ` (${stats[p.cle]})` : ''}
-              </button>
-            ))}
-          </div>
+          <h2>{recherche ? `Résultats pour « ${recherche} »` : 'Dossiers en attente'}</h2>
+          {recherche ? (
+            <button className="pill" onClick={effacer}>✕ Effacer</button>
+          ) : (
+            <div className="pills">
+              {PILLS.map((p) => (
+                <button
+                  key={p.statut}
+                  className={`pill ${statutTable === p.statut ? 'pill--actif' : ''}`}
+                  onClick={() => choisirPill(p.statut)}
+                >
+                  {p.label}{stats ? ` (${stats[p.cle]})` : ''}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {rows === null && <p className="muet">Chargement…</p>}
-        {rows && rows.length === 0 && <p className="muet">Aucun dossier dans cette file.</p>}
+        {rows && rows.length === 0 && <p className="muet">Aucun dossier.</p>}
         {rows && rows.length > 0 && (
           <div className="tableau-wrap">
             <table className="tableau">
               <thead>
-                <tr>
-                  <th>Numéro</th><th>Citoyen</th><th>Type</th><th>Date dépôt</th><th>Statut</th><th></th>
-                </tr>
+                <tr><th>Numéro</th><th>Citoyen</th><th>Type</th><th>Date</th><th>Statut</th><th>Action</th></tr>
               </thead>
               <tbody>
-                {rows.map((d) => (
-                  <tr key={d.id}>
-                    <td><Link to={`/agent/declarations/${d.id}`}>{d.numeroSuivi}</Link></td>
-                    <td>
-                      <span className="cell-citoyen">
-                        <span className="avatar">{initiales(d.enfant?.prenoms, d.enfant?.nom)}</span>
-                        {d.enfant?.prenoms} {d.enfant?.nom}
-                      </span>
-                    </td>
-                    <td>Déclaration de naissance</td>
-                    <td>{new Date(d.creeLe).toLocaleDateString('fr-FR')}</td>
-                    <td><span className="badge">{d.statut}</span></td>
-                    <td><Link to={`/agent/declarations/${d.id}`}>Ouvrir</Link></td>
-                  </tr>
-                ))}
+                {rows.map((d) => {
+                  const act = actionRapide(d.statut);
+                  return (
+                    <tr key={d.id}>
+                      <td><Link to={`/agent/declarations/${d.id}`}>{d.numeroSuivi}</Link></td>
+                      <td>
+                        <span className="cell-citoyen">
+                          <span className="avatar">{initiales(d.enfant?.prenoms, d.enfant?.nom)}</span>
+                          {d.enfant?.prenoms} {d.enfant?.nom}
+                        </span>
+                      </td>
+                      <td>Déclaration de naissance</td>
+                      <td>{new Date(d.creeLe).toLocaleDateString('fr-FR')}</td>
+                      <td><span className="badge">{d.statut}</span></td>
+                      <td>
+                        {act ? (
+                          <button
+                            className="btn"
+                            style={{ padding: '6px 12px', fontSize: '0.82rem' }}
+                            disabled={actionEnCours === d.id}
+                            onClick={() => agirRapide(d.id, act.cible)}
+                          >
+                            {actionEnCours === d.id ? '…' : act.label}
+                          </button>
+                        ) : (
+                          <Link to={`/agent/declarations/${d.id}`}>Ouvrir</Link>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -1,5 +1,5 @@
 import { randomInt } from 'node:crypto';
-import { Prisma, StatutDeclaration, type DeclarationNaissance } from '@prisma/client';
+import { Prisma, Role, StatutDeclaration, type DeclarationNaissance } from '@prisma/client';
 import type { DeclarationNaissanceDto } from '@e-mairie/shared';
 import { prisma } from '../../prisma';
 import { erreurs } from '../../http/erreurs';
@@ -108,8 +108,17 @@ export const declarationService = {
     const where: Prisma.DeclarationNaissanceWhereInput = {
       statut: filtre.statut,
       citoyenId: filtre.citoyenId,
-      numeroSuivi: filtre.numeroSuivi,
     };
+    if (filtre.numeroSuivi) where.numeroSuivi = filtre.numeroSuivi;
+    // Recherche libre : numéro (partiel) ou nom/prénoms de l'enfant (champ JSON).
+    if (filtre.recherche) {
+      const q = filtre.recherche;
+      where.OR = [
+        { numeroSuivi: { contains: q, mode: 'insensitive' } },
+        { enfant: { path: ['nom'], string_contains: q } },
+        { enfant: { path: ['prenoms'], string_contains: q } },
+      ];
+    }
     const [items, total] = await prisma.$transaction([
       prisma.declarationNaissance.findMany({
         where,
@@ -173,7 +182,7 @@ export const declarationService = {
     const debutJour = new Date();
     debutJour.setHours(0, 0, 0, 0);
 
-    const [recusAujourdhui, enAttente, enCours, piecesDemandees, valides, rejetes, pourMoyenne, activiteBrute] =
+    const [recusAujourdhui, enAttente, enCours, piecesDemandees, valides, rejetes, totalCitoyens, pourMoyenne, activiteBrute] =
       await prisma.$transaction([
         prisma.declarationNaissance.count({ where: { creeLe: { gte: debutJour } } }),
         prisma.declarationNaissance.count({ where: { statut: StatutDeclaration.Soumis } }),
@@ -192,6 +201,7 @@ export const declarationService = {
           },
         }),
         prisma.declarationNaissance.count({ where: { statut: StatutDeclaration.Refuse } }),
+        prisma.citoyen.count({ where: { role: Role.CITOYEN } }),
         prisma.declarationNaissance.findMany({
           where: { soumisLe: { not: null }, valideLe: { not: null } },
           select: { soumisLe: true, valideLe: true },
@@ -213,6 +223,26 @@ export const declarationService = {
       tempsMoyenHeures = Math.round((totalMs / pourMoyenne.length / 3_600_000) * 10) / 10;
     }
 
+    // Série d'activité sur 7 jours : déclarations créées par jour (données réelles).
+    const debut7 = new Date();
+    debut7.setHours(0, 0, 0, 0);
+    debut7.setDate(debut7.getDate() - 6);
+    const recentes = await prisma.declarationNaissance.findMany({
+      where: { creeLe: { gte: debut7 } },
+      select: { creeLe: true },
+    });
+    const parJour: { label: string; count: number }[] = [];
+    for (let i = 0; i < 7; i++) {
+      const j = new Date(debut7);
+      j.setDate(debut7.getDate() + i);
+      parJour.push({ label: j.toLocaleDateString('fr-FR', { weekday: 'short' }), count: 0 });
+    }
+    for (const r of recentes) {
+      const jour = new Date(r.creeLe.getFullYear(), r.creeLe.getMonth(), r.creeLe.getDate());
+      const idx = Math.floor((jour.getTime() - debut7.getTime()) / 86_400_000);
+      if (idx >= 0 && idx < 7) parJour[idx].count += 1;
+    }
+
     const activite = activiteBrute.map((t) => ({
       id: t.id,
       ancienStatut: t.ancienStatut,
@@ -230,7 +260,9 @@ export const declarationService = {
       piecesDemandees,
       valides,
       rejetes,
+      totalCitoyens,
       tempsMoyenHeures,
+      parJour,
       activite,
     };
   },

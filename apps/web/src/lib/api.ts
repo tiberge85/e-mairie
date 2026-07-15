@@ -132,7 +132,9 @@ export interface StatsAgent {
   piecesDemandees: number;
   valides: number;
   rejetes: number;
+  totalCitoyens: number;
   tempsMoyenHeures: number | null;
+  parJour: { label: string; count: number }[];
   activite: ActiviteItem[];
 }
 export interface Piece {
@@ -165,12 +167,13 @@ export const api = {
     requete<{ id: string; nom: string }>('POST', '/api/documents', { form, token }),
 
   // ── Côté mairie (agent) ────────────────────────────────────────────────────
-  listerAgent: (token: string, statut?: string) =>
-    requete<ListeDeclarations>(
-      'GET',
-      `/api/declarations${statut ? `?statut=${encodeURIComponent(statut)}` : ''}`,
-      { token },
-    ),
+  listerAgent: (token: string, opts: { statut?: string; recherche?: string } = {}) => {
+    const p = new URLSearchParams();
+    if (opts.statut) p.set('statut', opts.statut);
+    if (opts.recherche) p.set('recherche', opts.recherche);
+    const qs = p.toString();
+    return requete<ListeDeclarations>('GET', `/api/declarations${qs ? `?${qs}` : ''}`, { token });
+  },
   statsAgent: (token: string) =>
     requete<StatsAgent>('GET', '/api/declarations/stats', { token }),
   obtenirAgent: (id: string, token: string) =>
