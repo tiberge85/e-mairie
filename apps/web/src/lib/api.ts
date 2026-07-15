@@ -180,6 +180,19 @@ export const api = {
       body: { statut, motif },
       token,
     }),
+  /** Télécharge le PDF de l'acte (le jeton ne peut pas passer par un simple lien). */
+  telechargerActe: async (id: string, token: string): Promise<Blob> => {
+    const reponse = await fetch(`${BASE}/api/actes/${id}/pdf`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!reponse.ok) {
+      const t = await reponse.text();
+      let msg = "Génération du PDF impossible";
+      try { msg = JSON.parse(t)?.message ?? msg; } catch { /* ignore */ }
+      throw new ErreurApi(reponse.status, msg);
+    }
+    return reponse.blob();
+  },
   listerDocuments: (entite: string, entiteId: string, token: string) =>
     requete<ListeDocuments>(
       'GET',

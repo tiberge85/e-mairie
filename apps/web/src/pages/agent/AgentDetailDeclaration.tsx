@@ -63,6 +63,7 @@ export function AgentDetailDeclaration() {
   const [erreur, setErreur] = useState('');
   const [message, setMessage] = useState('');
   const [enCours, setEnCours] = useState(false);
+  const [pdfEnCours, setPdfEnCours] = useState(false);
 
   const charger = useCallback(() => {
     if (!token || !id) return;
@@ -90,6 +91,27 @@ export function AgentDetailDeclaration() {
     }
   }
 
+  async function telechargerActe() {
+    if (!token || !id || !decl) return;
+    setPdfEnCours(true);
+    setErreur('');
+    try {
+      const blob = await api.telechargerActe(id, token);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `acte-${decl.numeroActeOfficiel}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setErreur(e instanceof ErreurApi ? e.message : 'Téléchargement impossible.');
+    } finally {
+      setPdfEnCours(false);
+    }
+  }
+
   if (erreur && !decl) return <div className="alerte alerte--erreur">{erreur}</div>;
   if (!decl) return <p className="muet">Chargement…</p>;
 
@@ -98,7 +120,7 @@ export function AgentDetailDeclaration() {
 
   return (
     <>
-      <p><Link to="/agent">← Retour à la file</Link></p>
+      <p><Link to="/agent/dossiers">← Retour à la file</Link></p>
       <h1>Dossier {decl.numeroSuivi}</h1>
       <p className="sous-titre">
         Statut : <span className="badge">{decl.statut}</span>
@@ -140,6 +162,19 @@ export function AgentDetailDeclaration() {
           </ul>
         )}
       </div>
+
+      {decl.numeroActeOfficiel && (
+        <div className="carte">
+          <h2>Acte officiel</h2>
+          <p className="muet">
+            Acte n° {decl.numeroActeOfficiel}
+            {decl.genereLe ? ` — généré le ${new Date(decl.genereLe).toLocaleDateString('fr-FR')}` : ''}.
+          </p>
+          <button className="btn" onClick={telechargerActe} disabled={pdfEnCours}>
+            {pdfEnCours ? 'Génération…' : "⬇ Télécharger l'acte (PDF)"}
+          </button>
+        </div>
+      )}
 
       {decl.motifRefus && (
         <div className="alerte alerte--erreur">Motif du refus : {decl.motifRefus}</div>

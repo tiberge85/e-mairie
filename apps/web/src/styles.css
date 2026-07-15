@@ -114,6 +114,51 @@ a:hover { text-decoration: underline; }
   padding: 28px 20px 72px;
 }
 
+/* ── Back-office (menu latéral) ───────────────────────────────────────────── */
+.bo { display: flex; flex-direction: column; }
+@media (min-width: 900px) { .bo { flex-direction: row; align-items: flex-start; } }
+
+.bo__nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line-soft);
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+@media (min-width: 900px) {
+  .bo__nav {
+    flex-direction: column;
+    width: 250px;
+    flex: none;
+    border-bottom: none;
+    border-right: 1px solid var(--line-soft);
+    position: sticky;
+    top: 69px;
+    height: calc(100vh - 69px);
+    padding: 20px 14px;
+    gap: 4px;
+  }
+}
+.bo__lien {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.bo__lien:hover { background: var(--surface-2); text-decoration: none; color: var(--navy); }
+.bo__lien--actif, .bo__lien--actif:hover { background: var(--navy); color: #fff; }
+.bo__lien--off { opacity: 0.4; pointer-events: none; }
+.bo__ico { font-size: 1.05rem; }
+
+.bo__contenu { flex: 1; width: 100%; max-width: 1000px; margin: 0 auto; padding: 26px 22px 72px; }
+
 /* ── Cartes ───────────────────────────────────────────────────────────────── */
 .carte {
   background: var(--surface);

@@ -3,8 +3,8 @@ import { useAuth } from './auth/AuthContext';
 import { RouteProtegee } from './components/ProtectedRoute';
 import { RouteAgent } from './components/RouteAgent';
 import { Logo } from './components/Logo';
-import { AgentTableauDeBord } from './pages/agent/AgentTableauDeBord';
-import { AgentDetailDeclaration } from './pages/agent/AgentDetailDeclaration';
+import { CadreEtroit } from './components/CadreEtroit';
+import { AgentLayout } from './components/AgentLayout';
 import { Inscription } from './pages/Inscription';
 import { VerifierOtp } from './pages/VerifierOtp';
 import { Connexion } from './pages/Connexion';
@@ -12,6 +12,9 @@ import { TableauDeBord } from './pages/TableauDeBord';
 import { NouvelleDeclaration } from './pages/NouvelleDeclaration';
 import { MesDeclarations } from './pages/MesDeclarations';
 import { DetailDeclaration } from './pages/DetailDeclaration';
+import { AgentTableauDeBord } from './pages/agent/AgentTableauDeBord';
+import { AgentDossiers } from './pages/agent/AgentDossiers';
+import { AgentDetailDeclaration } from './pages/agent/AgentDetailDeclaration';
 
 export function App() {
   const { token, citoyen, deconnexion } = useAuth();
@@ -34,8 +37,9 @@ export function App() {
         )}
       </header>
 
-      <main className="conteneur">
-        <Routes>
+      <Routes>
+        {/* Écrans citoyen & authentification — cadre étroit centré */}
+        <Route element={<CadreEtroit />}>
           <Route path="/inscription" element={<Inscription />} />
           <Route path="/otp" element={<VerifierOtp />} />
           <Route path="/connexion" element={<Connexion />} />
@@ -52,14 +56,17 @@ export function App() {
             path="/declarations/:id"
             element={<RouteProtegee><DetailDeclaration /></RouteProtegee>}
           />
-          <Route path="/agent" element={<RouteAgent><AgentTableauDeBord /></RouteAgent>} />
-          <Route
-            path="/agent/declarations/:id"
-            element={<RouteAgent><AgentDetailDeclaration /></RouteAgent>}
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
+        </Route>
+
+        {/* Back-office agent — menu latéral */}
+        <Route path="/agent" element={<RouteAgent><AgentLayout /></RouteAgent>}>
+          <Route index element={<AgentTableauDeBord />} />
+          <Route path="dossiers" element={<AgentDossiers />} />
+          <Route path="declarations/:id" element={<AgentDetailDeclaration />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </>
   );
 }
