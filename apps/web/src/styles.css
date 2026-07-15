@@ -153,11 +153,63 @@ a:hover { text-decoration: underline; }
   text-decoration: none;
 }
 .bo__lien:hover { background: var(--surface-2); text-decoration: none; color: var(--navy); }
-.bo__lien--actif, .bo__lien--actif:hover { background: var(--navy); color: #fff; }
+/* Rubrique active : fond doré, texte marine (identité Lumière Citoyenne). */
+.bo__lien--actif, .bo__lien--actif:hover { background: var(--gold-pill); color: var(--navy); }
 .bo__lien--off { opacity: 0.4; pointer-events: none; }
 .bo__ico { font-size: 1.05rem; }
+.bo__sep { flex: 1; }
+.bo__decon {
+  margin-top: 6px; border: none; background: var(--surface-2); color: var(--navy);
+  font-weight: 700; text-align: left; cursor: pointer;
+}
 
-.bo__contenu { flex: 1; width: 100%; max-width: 1000px; margin: 0 auto; padding: 26px 22px 72px; }
+/* Marque en tête de sidebar : Hôtel de Ville / Portail Administratif */
+.bo__marque { display: flex; align-items: center; gap: 12px; padding: 4px 8px 16px; }
+.bo__marque__titre { font-family: var(--serif); font-weight: 700; color: var(--navy); font-size: 1.1rem; line-height: 1.05; }
+.bo__marque__sous { font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
+
+.bo__contenu { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 26px 22px 72px; }
+
+/* ── Console agent : disposition ──────────────────────────────────────────── */
+.console-haut { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
+@media (min-width: 1000px) { .console-haut { grid-template-columns: 2fr 1fr; } }
+
+.prio { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 560px) { .prio { grid-template-columns: 1fr 1fr; } }
+.prio__item {
+  border: 1px solid var(--line-soft); border-radius: var(--r); padding: 16px; background: var(--surface-2);
+}
+.prio__ligne1 { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.prio__meta { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 0.82rem; color: var(--ink-soft); }
+
+/* Pastilles de filtre */
+.pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill {
+  border: 1px solid var(--line); background: #fff; color: var(--ink-soft);
+  border-radius: var(--pill); padding: 5px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+}
+.pill--actif { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+.entete-section { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.entete-section h2 { margin: 0; }
+
+/* ── Tableau des dossiers ─────────────────────────────────────────────────── */
+.tableau-wrap { overflow-x: auto; }
+.tableau { width: 100%; border-collapse: collapse; min-width: 560px; }
+.tableau th {
+  text-align: left; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-soft); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--line-soft);
+}
+.tableau td { padding: 14px 12px; border-bottom: 1px solid var(--line-soft); font-size: 0.92rem; vertical-align: middle; }
+.tableau tr:last-child td { border-bottom: none; }
+.tableau a { color: var(--navy); font-weight: 700; }
+.avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: var(--pill);
+  background: var(--gold-pill); color: var(--gold-pill-ink);
+  font-size: 0.75rem; font-weight: 700; margin-right: 8px;
+}
+.cell-citoyen { display: flex; align-items: center; }
 
 /* ── Cartes ───────────────────────────────────────────────────────────────── */
 .carte {
