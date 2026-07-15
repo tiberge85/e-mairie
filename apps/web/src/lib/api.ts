@@ -116,6 +116,25 @@ export interface DeclarationDetail extends Declaration {
   genereLe: string | null;
   transitions?: Transition[];
 }
+export interface ActiviteItem {
+  id: string;
+  ancienStatut: string | null;
+  nouveauStatut: string;
+  motif: string | null;
+  creeLe: string;
+  numeroSuivi: string;
+  enfant: { nom?: string; prenoms?: string; [k: string]: unknown };
+}
+export interface StatsAgent {
+  recusAujourdhui: number;
+  enAttente: number;
+  enCours: number;
+  piecesDemandees: number;
+  valides: number;
+  rejetes: number;
+  tempsMoyenHeures: number | null;
+  activite: ActiviteItem[];
+}
 export interface Piece {
   id: string;
   nom: string;
@@ -152,6 +171,8 @@ export const api = {
       `/api/declarations${statut ? `?statut=${encodeURIComponent(statut)}` : ''}`,
       { token },
     ),
+  statsAgent: (token: string) =>
+    requete<StatsAgent>('GET', '/api/declarations/stats', { token }),
   obtenirAgent: (id: string, token: string) =>
     requete<DeclarationDetail>('GET', `/api/declarations/${id}`, { token }),
   changerStatut: (id: string, statut: string, motif: string | undefined, token: string) =>

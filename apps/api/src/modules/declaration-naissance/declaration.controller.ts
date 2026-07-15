@@ -38,6 +38,10 @@ export const declarationController = {
   },
 
   // ── Côté mairie ────────────────────────────────────────────────────────────
+  async statsAgent(_req: Request, res: Response) {
+    res.json(await declarationService.statsAgent());
+  },
+
   async listerAgent(req: Request, res: Response) {
     const filtre = filtreDeclarationsSchema.parse(req.query);
     res.json(await declarationService.listerPourAgent(filtre));

@@ -164,4 +164,74 @@ export const declarationService = {
       maj,
     });
   },
+
+  /**
+   * Indicateurs du tableau de bord agent (phase 1 de l'ERP). Calculés à la volée
+   * depuis les déclarations et leurs horodatages — pas de table de stats à tenir.
+   */
+  async statsAgent() {
+    const debutJour = new Date();
+    debutJour.setHours(0, 0, 0, 0);
+
+    const [recusAujourdhui, enAttente, enCours, piecesDemandees, valides, rejetes, pourMoyenne, activiteBrute] =
+      await prisma.$transaction([
+        prisma.declarationNaissance.count({ where: { creeLe: { gte: debutJour } } }),
+        prisma.declarationNaissance.count({ where: { statut: StatutDeclaration.Soumis } }),
+        prisma.declarationNaissance.count({ where: { statut: StatutDeclaration.EnVerification } }),
+        prisma.declarationNaissance.count({ where: { statut: StatutDeclaration.PiecesDemandees } }),
+        prisma.declarationNaissance.count({
+          where: {
+            statut: {
+              in: [
+                StatutDeclaration.Valide,
+                StatutDeclaration.ActeGenere,
+                StatutDeclaration.Disponible,
+                StatutDeclaration.Retire,
+              ],
+            },
+          },
+        }),
+        prisma.declarationNaissance.count({ where: { statut: StatutDeclaration.Refuse } }),
+        prisma.declarationNaissance.findMany({
+          where: { soumisLe: { not: null }, valideLe: { not: null } },
+          select: { soumisLe: true, valideLe: true },
+        }),
+        prisma.transitionStatut.findMany({
+          take: 12,
+          orderBy: { creeLe: 'desc' },
+          include: { declaration: { select: { numeroSuivi: true, enfant: true } } },
+        }),
+      ]);
+
+    // Temps moyen de traitement (soumission → validation), en heures.
+    let tempsMoyenHeures: number | null = null;
+    if (pourMoyenne.length > 0) {
+      const totalMs = pourMoyenne.reduce(
+        (s, d) => s + (d.valideLe!.getTime() - d.soumisLe!.getTime()),
+        0,
+      );
+      tempsMoyenHeures = Math.round((totalMs / pourMoyenne.length / 3_600_000) * 10) / 10;
+    }
+
+    const activite = activiteBrute.map((t) => ({
+      id: t.id,
+      ancienStatut: t.ancienStatut,
+      nouveauStatut: t.nouveauStatut,
+      motif: t.motif,
+      creeLe: t.creeLe,
+      numeroSuivi: t.declaration.numeroSuivi,
+      enfant: t.declaration.enfant,
+    }));
+
+    return {
+      recusAujourdhui,
+      enAttente,
+      enCours,
+      piecesDemandees,
+      valides,
+      rejetes,
+      tempsMoyenHeures,
+      activite,
+    };
+  },
 };

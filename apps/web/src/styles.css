@@ -297,6 +297,36 @@ input:focus, select:focus {
 .badge--or { background: var(--gold-pill); color: var(--gold-pill-ink); }
 .badge--vert { background: #d7f2e1; color: #0b6b39; }
 
+/* ── Indicateurs (KPI) ────────────────────────────────────────────────────── */
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
+@media (min-width: 640px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+.kpi {
+  background: var(--surface);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  box-shadow: var(--ombre);
+}
+.kpi__val { font-family: var(--serif); font-weight: 700; font-size: 1.9rem; color: var(--navy); line-height: 1; }
+.kpi__lib {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+.kpi--or .kpi__val { color: var(--gold); }
+.kpi--vert .kpi__val { color: var(--emerald); }
+.kpi--rouge .kpi__val { color: var(--error); }
+
+/* ── Fil d'activité ───────────────────────────────────────────────────────── */
+.fil { list-style: none; padding: 0; margin: 0; }
+.fil li { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line-soft); }
+.fil li:last-child { border-bottom: none; }
+.fil__point { width: 8px; height: 8px; border-radius: 50%; background: var(--gold-bright); margin-top: 8px; flex: none; }
+.fil__txt { flex: 1; }
+.fil__meta { color: var(--ink-soft); font-size: 0.82rem; }
+
 /* ── Récapitulatif ────────────────────────────────────────────────────────── */
 .recap dt { font-weight: 700; margin-top: 12px; color: var(--ink); font-size: 0.9rem; }
 .recap dd { margin: 2px 0 0; color: var(--ink-soft); }

@@ -17,6 +17,13 @@ declarationRoutes.post(
 declarationRoutes.post('/:id/renvoyer', authentifier, asyncHandler(declarationController.renvoyer));
 
 // ── Traitement côté mairie (agents et officiers uniquement) ───────────────────
+// '/stats' AVANT '/:id' pour ne pas être capturé comme un identifiant.
+declarationRoutes.get(
+  '/stats',
+  authentifier,
+  exigerRole('AGENT', 'OFFICIER'),
+  asyncHandler(declarationController.statsAgent),
+);
 declarationRoutes.get(
   '/',
   authentifier,
